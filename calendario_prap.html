@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário PRAP N1 - 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .aula-card {
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .aula-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.3));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .aula-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .aula-card:hover::before {
+            opacity: 1;
+        }
+
+        .aula-number {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 10px;
+        }
+
+        .aula-date {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .aula-title {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 500;
+            line-height: 1.4;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Cores dos blocos */
+        .bloco-1 {
+            background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+        }
+
+        .bloco-2 {
+            background: linear-gradient(135deg, #4ECDC4, #44A08D);
+        }
+
+        .bloco-3 {
+            background: linear-gradient(135deg, #45B7D1, #96C93D);
+        }
+
+        .bloco-4 {
+            background: linear-gradient(135deg, #FFA726, #FF7043);
+        }
+
+        .bloco-5 {
+            background: linear-gradient(135deg, #AB47BC, #8E24AA);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #fff, #f8f9fa);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            position: absolute;
+            right: 20px;
+            top: 15px;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #e74c3c;
+        }
+
+        .modal-header {
+            border-bottom: 3px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .modal-date {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+
+        .modal-description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #34495e;
+            text-align: justify;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(-50px);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .calendar-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Calendário PRAP N1 - 2025</h1>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color bloco-1"></div>
+                <span>Bloco 1 - Fundamentos e Preparação</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color bloco-2"></div>
+                <span>Bloco 2 - Programação de Aplicativos</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color bloco-3"></div>
+                <span>Bloco 3 - Banco de Dados e CRUD</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color bloco-4"></div>
+                <span>Bloco 4 - Boas Práticas e Documentação</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color bloco-5"></div>
+                <span>Bloco 5 - Consolidação e Apresentação Final</span>
+            </div>
+        </div>
+
+        <div class="calendar-grid" id="calendar-grid">
+            <!-- As aulas serão inseridas aqui via JavaScript -->
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-header">
+                <div class="modal-title" id="modal-title"></div>
+                <div class="modal-date" id="modal-date"></div>
+            </div>
+            <div class="modal-description" id="modal-description"></div>
+        </div>
+    </div>
+
+    <script>
+        const aulas = [
+            {
+                numero: "Aula 1",
+                data: "21/08/25",
+                titulo: "Introdução à UC, projeto de app, Canvas inicial",
+                descricao: "Apresentação do professor e da UC. Introdução ao Projeto 'Gestão de Rotina de Estudos'. Canvas – definição de usuários e funcionalidades.",
+                bloco: "bloco-1"
+            },
+            {
+                numero: "Aula 2",
+                data: "22/08/25",
+                titulo: "Canvas – Finalização",
+                descricao: "Modelagem de Negócios (Canvas) – proposta de valor e diferenciais. Atividade prática em grupos.",
+                bloco: "bloco-1"
+            },
+            {
+                numero: "Aula 3",
+                data: "28/08/25",
+                titulo: "Preparação do ambiente: IDE, repositórios, configs",
+                descricao: "Preparação do ambiente (IDE, repositórios, configurações). Instalação e primeiros testes.",
+                bloco: "bloco-1"
+            },
+            {
+                numero: "Aula 4",
+                data: "29/08/25",
+                titulo: "Programação estruturada e Programação Orientada à Objetos",
+                descricao: "Programação estruturada – Introdução, 3 pilares, objetivos e vantagens. Programação Orientada à Objetos - Introdução e os 4 pilares. Comparação entre Programação estruturada e Orientada à Objetos. Conceitos Fundamentais. Histórico e filosofia do Python. Sintaxe básica e identação. Interpretador interativo vs scripts. Comentários e documentação. Variáveis e Tipos de Dados. Declaração e atribuição de variáveis. Tipos primitivos: int, float, str, bool. Conversão entre tipos (casting). Operadores aritméticos, lógicos e relacionais. Entrada e Saída de Dados. Função input() e suas particularidades. Função print() e formatação. F-strings e métodos de formatação. Strings e Manipulação. Métodos de string essenciais. Fatiamento (slicing). Concatenação e interpolação. Debugging básico. Boas práticas de código.",
+                bloco: "bloco-1"
+            },
+            {
+                numero: "Aula 5",
+                data: "04/09/25",
+                titulo: "Programação estruturada - Estruturas de decisão e repetição",
+                descricao: "Estruturas de controle de fluxo. Organização de códigos: Funções e módulos. POO em Python. Outros paradigmas e aplicações em Python. Tratamentos de exceções e eventos.",
+                bloco: "bloco-1"
+            },
+            {
+                numero: "Aula 6",
+                data: "05/09/25",
+                titulo: "Revisão",
+                descricao: "Revisão de conteúdo do bloco 1 - Fundamentos e Preparação.",
+                bloco: "bloco-1"
+            },
+            {
+                numero: "Aula 7",
+                data: "11/09/25",
+                titulo: "Python sintaxe básica, variáveis, estruturas de decisão, repetição e funções",
+                descricao: "Aprofundamento na sintaxe básica do Python, trabalhando com variáveis, estruturas de decisão, repetição e desenvolvimento de funções.",
+                bloco: "bloco-2"
+            },
+            {
+                numero: "Aula 8",
+                data: "12/09/25",
+                titulo: "Introdução ao RAD",
+                descricao: "Introdução à metodologia de desenvolvimento rápido de aplicações RAD com fundamentação em python.",
+                bloco: "bloco-2"
+            },
+            {
+                numero: "Aula 9",
+                data: "18/09/25",
+                titulo: "Fases do RAD",
+                descricao: "Fases do RAD e Desenvolvimento de Aplicações CRUD com Python. Entendendo Aplicações CRUD. Desenvolvendo um Protótipo CRUD com Python.",
+                bloco: "bloco-2"
+            },
+            {
+                numero: "Aula 10",
+                data: "19/09/25",
+                titulo: "Finalização do RAD",
+                descricao: "Refinamento, Integração e Boas Práticas RAD com Python. O Ciclo Iterativo do RAD e o Feedback do Usuário. Explorando Outros Horizontes com Python e RAD. Boas Práticas e Considerações Finais sobre RAD em Python.",
+                bloco: "bloco-2"
+            },
+            {
+                numero: "Aula 11",
+                data: "25/09/25",
+                titulo: "Revisão + Prova Objetiva 1",
+                descricao: "Avaliação aplicada sobre o conteúdo dos blocos 1 e 2.",
+                bloco: "bloco-2"
+            },
+            {
+                numero: "Aula 12",
+                data: "26/09/25",
+                titulo: "CRUD",
+                descricao: "Criação de CRUD em python - desenvolvimento das operações básicas de Create, Read, Update e Delete.",
+                bloco: "bloco-3"
+            },
+            {
+                numero: "Aula 13",
+                data: "02/10/25",
+                titulo: "Workshop prático – CRUD",
+                descricao: "CRUD Completo - desenvolvimento prático de todas as funcionalidades do sistema CRUD.",
+                bloco: "bloco-3"
+            },
+            {
+                numero: "Aula 14",
+                data: "03/10/25",
+                titulo: "Interface gráfica",
+                descricao: "Interface inicial - desenvolvimento da interface gráfica do usuário para o sistema.",
+                bloco: "bloco-3"
+            },
+            {
+                numero: "Aula 15",
+                data: "09/10/25",
+                titulo: "Interface gráfica",
+                descricao: "Interface conectada ao CRUD - integração da interface gráfica com as funcionalidades do sistema CRUD.",
+                bloco: "bloco-3"
+            },
+            {
+                numero: "Aula 16",
+                data: "10/10/25",
+                titulo: "Introdução a BD relacionais, modelagem de BD",
+                descricao: "Conceitos e Modelo BD - introdução aos bancos de dados relacionais e técnicas de modelagem.",
+                bloco: "bloco-3"
+            },
+            {
+                numero: "Aula 17",
+                data: "16/10/25",
+                titulo: "Conexão Python–BD",
+                descricao: "Conexão validada - estabelecimento e validação da conexão entre Python e banco de dados.",
+                bloco: "bloco-3"
+            },
+            {
+                numero: "Aula 18",
+                data: "17/10/25",
+                titulo: "Boas práticas",
+                descricao: "PEP8, modularização, LGPD - aplicação das melhores práticas de desenvolvimento, seguindo padrões de código e considerações sobre proteção de dados.",
+                bloco: "bloco-4"
+            },
+            {
+                numero: "Aula 19",
+                data: "23/10/25",
+                titulo: "Documentação",
+                descricao: "Código documentado – comentários, docstrings - técnicas de documentação de código para melhor manutenibilidade.",
+                bloco: "bloco-4"
+            },
+            {
+                numero: "Aula 20",
+                data: "24/10/25",
+                titulo: "Organização do projeto e Gestão da qualidade",
+                descricao: "Estrutura organizada, Ferramentas (5W2H, monitoramento, controle e registro) - organização estrutural do projeto e aplicação de ferramentas de gestão de qualidade.",
+                bloco: "bloco-4"
+            },
+            {
+                numero: "Aula 21",
+                data: "31/10/25",
+                titulo: "Revisão + Prova Objetiva 2",
+                descricao: "Avaliação aplicada sobre o conteúdo dos blocos 1, 2, 3 e 4.",
+                bloco: "bloco-4"
+            },
+            {
+                numero: "Aula 22",
+                data: "07/11/25",
+                titulo: "Documentação",
+                descricao: "Apresentação e revisão da documentação da SA (Situação de Aprendizagem).",
+                bloco: "bloco-5"
+            },
+            {
+                numero: "Aula 23",
+                data: "14/11/25",
+                titulo: "Implementação de nova funcionalidade",
+                descricao: "CRUD expandido - implementação de funcionalidades adicionais ao sistema CRUD desenvolvido.",
+                bloco: "bloco-5"
+            },
+            {
+                numero: "Aula 24",
+                data: "21/11/25",
+                titulo: "Testes finais e ajustes",
+                descricao: "Protótipo funcional - realização de testes finais e ajustes necessários para garantir o funcionamento adequado do protótipo.",
+                bloco: "bloco-5"
+            },
+            {
+                numero: "Aula 25",
+                data: "28/11/25",
+                titulo: "Testes finais e ajustes",
+                descricao: "Protótipo funcional - continuação dos testes finais e refinamento do protótipo desenvolvido.",
+                bloco: "bloco-5"
+            },
+            {
+                numero: "Aula 26",
+                data: "05/12/25",
+                titulo: "Apresentação final da SA",
+                descricao: "Apresentação final da SA (Situação de Aprendizagem) - demonstração dos projetos desenvolvidos durante o curso.",
+                bloco: "bloco-5"
+            },
+            {
+                numero: "Aula 27",
+                data: "12/12/25",
+                titulo: "Apresentação final da SA",
+                descricao: "Apresentação final da SA (Situação de Aprendizagem) - continuação e encerramento das apresentações dos projetos.",
+                bloco: "bloco-5"
+            }
+        ];
+
+        // Criar cards das aulas
+        function criarCalendario() {
+            const grid = document.getElementById('calendar-grid');
+            
+            aulas.forEach(aula => {
+                const card = document.createElement('div');
+                card.className = `aula-card ${aula.bloco}`;
+                card.innerHTML = `
+                    <div class="aula-number">${aula.numero}</div>
+                    <div class="aula-date">📅 ${aula.data}</div>
+                    <div class="aula-title">${aula.titulo}</div>
+                `;
+                
+                card.addEventListener('click', () => {
+                    mostrarModal(aula);
+                });
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // Modal
+        const modal = document.getElementById('modal');
+        const closeBtn = document.querySelector('.close');
+
+        function mostrarModal(aula) {
+            document.getElementById('modal-title').textContent = aula.titulo;
+            document.getElementById('modal-date').textContent = `${aula.numero} - ${aula.data}`;
+            document.getElementById('modal-description').textContent = aula.descricao;
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function fecharModal() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        closeBtn.onclick = fecharModal;
+
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                fecharModal();
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                fecharModal();
+            }
+        });
+
+        // Inicializar
+        criarCalendario();
+    </script>
+</body>
+</html>
